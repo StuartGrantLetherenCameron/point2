@@ -4,91 +4,98 @@ from bs4 import BeautifulSoup
 
 from building import Building
 
-baseUrl = 'https://www.point2homes.com'
 
-searchUrl = 'https://www.point2homes.com/CA/Real-Estate-Listings.html?location=Ontario&PropertyType=MultiFamily&search_mode=location&ListingDate=yesterday&page=1&SelectedView=listings&LocationGeoId=205411&location_changed=&ajax=1'
-
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
-
-r = requests.get(searchUrl)
-soup = BeautifulSoup(r.content, features="html.parser")
-
-productList = soup.find_all('div', class_='item-cnt')
-
-resultsElement = soup.find('div', class_='results-no').text.split()
-
-numberOfPages = 1
+def main():
 
 
-if len(resultsElement) > 2:
-    numberOfPages = math.ceil(int(resultsElement[len(resultsElement) - 2]) / 24.0)
+    baseUrl = 'https://www.point2homes.com'
 
-homeLinks = []
+    searchUrl = 'https://www.point2homes.com/CA/Real-Estate-Listings.html?location=Ontario&PropertyType=MultiFamily&search_mode=location&ListingDate=yesterday&page=1&SelectedView=listings&LocationGeoId=205411&location_changed=&ajax=1'
 
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
 
-def find_good_link(evalute):
-    if 'https' in evalute:
-        return False
-    if 'javascript' in evalute:
-        return False
-
-    return True
-
-
-for item in productList:
-    for link in item.find_all('a', href=True):
-        if link['href'] not in homeLinks and find_good_link(link['href']):
-            homeLinks.append(link['href'])
-
-building_list = []
-
-for link in homeLinks:
-    r = requests.get(baseUrl + link, headers=headers)
-
+    r = requests.get(searchUrl)
     soup = BeautifulSoup(r.content, features="html.parser")
 
-    address = soup.find('div', class_='address-container').text.strip()
+    productList = soup.find_all('div', class_='item-cnt')
 
-    price = soup.find('div', class_='price').text.strip()
+    resultsElement = soup.find('div', class_='results-no').text.split()
 
-    property_summery_list = soup.find('div', class_='details-charcs').text.strip().split()
+    numberOfPages = 1
 
-    try:
-        building_type = property_summery_list[property_summery_list.index('Building')+2]
-    except:
-        building_type = "none"
 
-    try:
-        year_built = property_summery_list[property_summery_list.index('Built')+1]
-    except:
-        year_built = 0
+    if len(resultsElement) > 2:
+        numberOfPages = math.ceil(int(resultsElement[len(resultsElement) - 2]) / 24.0)
 
-    try:
-        floors = property_summery_list[property_summery_list.index('Stories')+1]
-    except:
-        floors = -1
+    homeLinks = []
 
-    try:
-        postal_code = property_summery_list[property_summery_list.index('Code')+1]
-    except:
-        postal_code = "ur dads house"
-    try:
-        mls_number = property_summery_list[property_summery_list.index('Number')+1]
-    except:
-        mls_number = "Not given"
 
-    try:
-        description = soup.find('div', class_='description-text clearfix').text.strip()
-    except:
-        description = "not given"
+    def find_good_link(evalute):
+        if 'https' in evalute:
+            return False
+        if 'javascript' in evalute:
+            return False
 
-    building = Building(price=price, address=address, building_type=building_type, year_built=year_built, floors=floors,
-                        postal_code=postal_code, mls_number=mls_number, description=description)
+        return True
 
-    building_list.append(building)
 
-print(len(building_list))
+    for item in productList:
+        for link in item.find_all('a', href=True):
+            if link['href'] not in homeLinks and find_good_link(link['href']):
+                homeLinks.append(link['href'])
 
+    building_list = []
+
+    for link in homeLinks:
+        r = requests.get(baseUrl + link, headers=headers)
+
+        soup = BeautifulSoup(r.content, features="html.parser")
+
+        address = soup.find('div', class_='address-container').text.strip()
+
+        price = soup.find('div', class_='price').text.strip()
+
+        property_summery_list = soup.find('div', class_='details-charcs').text.strip().split()
+
+        try:
+            building_type = property_summery_list[property_summery_list.index('Building')+2]
+        except:
+            building_type = "none"
+
+        try:
+            year_built = property_summery_list[property_summery_list.index('Built')+1]
+        except:
+            year_built = 0
+
+        try:
+            floors = property_summery_list[property_summery_list.index('Stories')+1]
+        except:
+            floors = -1
+
+        try:
+            postal_code = property_summery_list[property_summery_list.index('Code')+1]
+        except:
+            postal_code = "ur dads house"
+        try:
+            mls_number = property_summery_list[property_summery_list.index('Number')+1]
+        except:
+            mls_number = "Not given"
+
+        try:
+            description = soup.find('div', class_='description-text clearfix').text.strip()
+        except:
+            description = "not given"
+
+        building = Building(price=price, address=address, building_type=building_type, year_built=year_built, floors=floors,
+                            postal_code=postal_code, mls_number=mls_number, description=description)
+
+        building_list.append(building)
+
+    print(len(building_list))
+
+
+if __name__ == '__main__':
+    main()
 
 
 
