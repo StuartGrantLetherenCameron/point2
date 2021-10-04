@@ -92,6 +92,7 @@ def main():
         building_list.append(building)
 
     print(len(building_list))
+    print(building_list[1].description)
 
 
 if __name__ == '__main__':

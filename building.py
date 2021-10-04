@@ -1,6 +1,6 @@
 class Building:
 
-    def __init__(self, price, address, building_type, year_built=0, floors=0, postal_code='', mls_number=0,
+    def __init__(self, price, address, building_type, year_built=0, floors=0, postal_code='', lot_info = '',mls_number=0,
                  description=''):
         self.price = price
         self.address = address
@@ -8,6 +8,7 @@ class Building:
         self.year_built = year_built
         self.floors = floors
         self.postal_code = postal_code
+        self.lot_info = lot_info,
         self.mls_number = mls_number
         self.description = description
 
